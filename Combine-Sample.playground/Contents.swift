@@ -14,38 +14,105 @@ enum MyError: Error {
     case customError
 }
 
-let failPublisher = Fail(outputType: String.self, failure: MyError.customError)
-    .sink(receiveCompletion: { completion in
-        if case .failure(let failure) = completion {
-            print("Got failure: ", failure)
-        } else if case .finished = completion {
-            print("Everything ended successfully")
-        }
-    }, receiveValue: { value in
-        print("Receive value: ", value)
-    })
+//let failPublisher = Fail(outputType: String.self, failure: MyError.customError)
+//    .sink(receiveCompletion: { completion in
+//        if case .failure(let failure) = completion {
+//            print("Got failure: ", failure)
+//        } else if case .finished = completion {
+//            print("Everything ended successfully")
+//        }
+//    }, receiveValue: { value in
+//        print("Receive value: ", value)
+//    })
 
 //EMPTY
-let emptyPublisher = Empty<Int, Never>()
-
-emptyPublisher
-    .sink(receiveValue: {
-        value in
-        print("Got value: ", value)
-    })
+//let emptyPublisher = Empty<Int, Never>()
+//
+//emptyPublisher
+//    .sink(receiveValue: {
+//        value in
+//        print("Got value: ", value)
+//    })
 
 
 //SEQUENCE
-let sequencePublisher = Publishers.Sequence<[Int], Never>(sequence: [1, 2, 3, 4, 5])
-    .sink(receiveValue: { value in
-        print("receive: ", value)
-    })
+//let sequencePublisher = Publishers.Sequence<[Int], Never>(sequence: [1, 2, 3, 4, 5])
+//    .sink(receiveValue: { value in
+//        print("receive: ", value)
+//    })
 
 //TIMER
-let timerPublisher = Timer.publish(every: 1.0, on: .main, in: .default)
-    .autoconnect()
-    .sink(receiveValue: {
-        value in
-        print("Timer sink: ", value)
-    })
+//let timerPublisher = Timer.publish(every: 1.0, on: .main, in: .default)
+//    .autoconnect()
+//    .sink(receiveValue: {
+//        value in
+//        print("Timer sink: ", value)
+//    })
 
+
+
+//let deferredPublisher = Deferred {
+//    return Just("Hello, World!")
+//}
+//deferredPublisher.sink { value in
+//    print(value)
+//}
+
+
+
+//let futurePublisher = Future<String, Error> { promise in
+//    DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+//        promise(.success("Hello, Future!"))
+//    }
+//}
+//futurePublisher.sink(receiveCompletion: { completion in
+//    switch completion {
+//    case .failure(let error):
+//        print(error)
+//    case .finished:
+//        break
+//    }
+//}, receiveValue: { value in
+//    print(value)
+//})
+
+
+//
+//let publisher1 = PassthroughSubject<Int, Never>()
+//let publisher2 = PassthroughSubject<Int, Never>()
+//
+//let merged = publisher1.merge(with: publisher2)
+//
+//let subscription = merged.sink { value in
+//    print("Received value: \(value)")
+//}
+//
+//publisher1.send(1)
+//publisher2.send(2)
+//publisher1.send(3)
+
+
+let publisher1 = PassthroughSubject<Int, Never>()
+let publisher2 = PassthroughSubject<String, Never>()
+
+let zipped = publisher1.zip(publisher2)
+
+let subscription = zipped.sink { value in
+    print("Received value: \(value)")
+}
+
+publisher1.send(1)
+publisher2.send("A")
+publisher2.send("A1")
+publisher2.send("A2")
+publisher2.send("A3")
+
+publisher1.send(2)
+publisher2.send("B")
+publisher1.send(3)
+
+var m = 0
+for i in 0...1000000000000000000 {
+    publisher1.send(i)
+    publisher2.send("a")
+}
